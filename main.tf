@@ -169,9 +169,80 @@ resource "aws_autoscaling_group" "ecs_asg" {
     version = "$Latest"
   }
 
-  vpc_zone_identifier = [aws_subnet.subnets[0].id]
+   vpc_zone_identifier = [aws_subnet.subnets[0].id, aws_subnet.subnets[1].id]
+  tag {
+   key                 = "AmazonECSManaged"
+   value               = true
+   propagate_at_launch = true
  
 }
+}
+
+# Application Load balancer with Target group 
+resource "aws_lb" "ecs_alb" {
+ name               = "ecs-alb"
+ internal           = false
+ load_balancer_type = "application"
+ security_groups    = [aws_security_group.app-sg.id]
+ subnets            = [aws_subnet.subnets[0].id, aws_subnet.subnets[1].id]
+
+ tags = {
+   Name = "ecs-alb"
+ }
+}
+
+resource "aws_lb_listener" "ecs_alb_listener" {
+ load_balancer_arn = aws_lb.ecs_alb.arn
+ port              = 80
+ protocol          = "HTTP"
+
+ default_action {
+   type             = "forward"
+   target_group_arn = aws_lb_target_group.ecs_tg.arn
+ }
+}
+
+resource "aws_lb_target_group" "ecs_tg" {
+ name        = "ecs-target-group"
+ port        = 80
+ protocol    = "HTTP"
+ target_type = "ip"
+ vpc_id      = aws_vpc.primary_vpc.id
+
+ health_check {
+   path = "/"
+ }
+}
+
+#Capacity Providers
+
+resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
+ name = "test1"
+
+ auto_scaling_group_provider {
+   auto_scaling_group_arn = aws_autoscaling_group.ecs_asg.arn
+
+   managed_scaling {
+     maximum_scaling_step_size = 1000
+     minimum_scaling_step_size = 1
+     status                    = "ENABLED"
+     target_capacity           = 3
+   }
+ }
+}
+
+resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_provider" {
+ cluster_name = aws_ecs_cluster.ecs_cluster.name
+
+ capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider.name]
+
+ default_capacity_provider_strategy {
+   base              = 1
+   weight            = 100
+   capacity_provider = aws_ecs_capacity_provider.ecs_capacity_provider.name
+ }
+}
+
 
 # ECS Service Role
 resource "aws_iam_role" "ecs_service_role" {
@@ -272,6 +343,7 @@ resource "aws_ecs_service" "ECS-Service" {
   }
 }
 
+#Create ECR Service
 resource "aws_ecr_repository" "pcg_ecr" {
   name = "pcg-ecr-repo"
   
