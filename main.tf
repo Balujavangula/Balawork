@@ -283,7 +283,7 @@ resource "aws_ecr_repository" "pcg_ecr" {
 resource "aws_vpc_endpoint" "ecr_endpoint" {
   vpc_id            = aws_vpc.primary_vpc.id
   service_name      = "com.amazonaws.us-east-1.ecr.dkr"
-  route_table_ids   = [aws_vpc.primary_vpc.public_rt.id]
+  route_table_ids   = [aws_vpc.primary_vpc.public_rt]
   
   tags = {
     Name = "ecr-vpc-endpoint"
