@@ -271,3 +271,21 @@ resource "aws_ecs_service" "ECS-Service" {
     assign_public_ip = false  # Assign public IP for public-facing service
   }
 }
+
+resource "aws_ecr_repository" "pcg_ecr" {
+  name = "pcg-ecr-repo"
+  
+  tags = {
+    Name = "pcg-ecr-repo"
+  }
+}
+
+resource "aws_vpc_endpoint" "ecr_endpoint" {
+  vpc_id            = aws_vpc.primary_vpc.id
+  service_name      = "com.amazonaws.us-east-1.ecr.dkr"
+  route_table_ids   = [aws_vpc.primary_vpc.public_rt.id]
+  
+  tags = {
+    Name = "ecr-vpc-endpoint"
+  }
+}
