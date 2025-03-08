@@ -268,6 +268,6 @@ resource "aws_ecs_service" "ECS-Service" {
   network_configuration {
     subnets          = [aws_subnet.subnets[0].id]
     security_groups = [aws_security_group.app-sg.id]
-    assign_public_ip = true  # Assign public IP for public-facing service
+    assign_public_ip = false  # Assign public IP for public-facing service
   }
 }
