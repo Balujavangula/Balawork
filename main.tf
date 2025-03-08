@@ -262,12 +262,12 @@ resource "aws_ecs_task_definition" "task" {
 # Create ECS Service
 resource "aws_ecs_service" "ECS-Service" {
   name            = "my-service"
-  cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.example.arn
+  cluster         = aws_ecs_cluster.ecs_cluster.id
+  task_definition = aws_ecs_task_definition.task.arn
   desired_count   = 1
   network_configuration {
-    subnets          = [aws_subnet.subnet_a.id, aws_subnet.subnet_b.id]
-    security_groups = [aws_security_group.allow_all.id]
+    subnets          = [aws_subnet.subnets[0].id]
+    security_groups = [aws_security_group.app-sg.id]
     assign_public_ip = true  # Assign public IP for public-facing service
   }
 }
