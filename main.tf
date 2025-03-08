@@ -287,7 +287,7 @@ resource "aws_vpc_endpoint" "ecr_dkr_endpoint" {
 
   subnet_ids          = [aws_subnet.subnets[0].id]
   security_group_ids  = [aws_security_group.app-sg.id]
-  private_dns_enabled = true
+  private_dns_enabled = false
 
   tags = {
     Name = "ecr-dkr-endpoint"
