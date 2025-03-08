@@ -280,12 +280,16 @@ resource "aws_ecr_repository" "pcg_ecr" {
   }
 }
 
-resource "aws_vpc_endpoint" "ecr_endpoint" {
+resource "aws_vpc_endpoint" "ecr_dkr_endpoint" {
   vpc_id            = aws_vpc.primary_vpc.id
   service_name      = "com.amazonaws.us-east-1.ecr.dkr"
-  route_table_ids   = [aws_vpc.primary_vpc.aws_route_table.public_rt.id]
-  
+  vpc_endpoint_type = "Interface"
+
+  subnet_ids          = [aws_subnet.subnets[2].id]
+  security_group_ids  = [aws_security_group.app-sg.id]
+  private_dns_enabled = true
+
   tags = {
-    Name = "ecr-vpc-endpoint"
+    Name = "ecr-dkr-endpoint"
   }
 }
