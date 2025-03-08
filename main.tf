@@ -285,7 +285,7 @@ resource "aws_vpc_endpoint" "ecr_dkr_endpoint" {
   service_name      = "com.amazonaws.us-east-1.ecr.dkr"
   vpc_endpoint_type = "Interface"
 
-  subnet_ids          = [aws_subnet.subnets[2].id]
+  subnet_ids          = [aws_subnet.subnets[0].id]
   security_group_ids  = [aws_security_group.app-sg.id]
   private_dns_enabled = true
 
